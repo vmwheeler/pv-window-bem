@@ -70,13 +70,13 @@ class Layer:
         
         
         
-num_lams = 500
+num_lams = 1500
 lams = np.linspace(0.3,2.5,num=num_lams)
 
 Glass = Layer(4000,'Rubin-clear')
 TiO2 = Layer(0.05,'Siefke')
 AZO = Layer(0.2,'Treharne')
-MAPI = Layer(0.1,'Phillips')
+MAPI = Layer(0.03,'Phillips')
 ITO = Layer(0.2,'Moerland')
 ZnO = Layer(0.05,'Stelling')
 PVP = Layer(1500,'Konig')
