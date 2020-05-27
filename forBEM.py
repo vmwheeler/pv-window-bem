@@ -70,7 +70,7 @@ class Layer:
         
         
         
-num_lams = 1500
+num_lams = 500
 lams = np.linspace(0.3,2.5,num=num_lams)
 
 Glass = Layer(4000,'Rubin-clear')
