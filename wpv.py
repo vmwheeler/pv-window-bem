@@ -6,8 +6,9 @@ class Layer:
     """ 
     I am a layer class for organizing data for each layer. I should make constructing stacks easier in the future and reduce possible mistakes
     """
-    def __init__(self, thickness, fname_root):
+    def __init__(self, thickness, fname_root, i_or_c):
         self.d = thickness
+        self.i_or_c = i_or_c
         #self.nk = 1.0
         
         """
