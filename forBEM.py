@@ -41,11 +41,11 @@ plt.plot(lams,Ttests)
 plt.show()
 '''
 
-#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
+layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
 #layers = [Glass,ITO,ITO,MAPI]
 #layers = [ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
 #layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO]
-layers = [MAPI]
+#layers = [MAPI]
 #layers = [ITO,ITO,ITO,ITO]
 #layers = [Glass,Glass,Glass,Glass]
 #layers = [ITO,ITO,TiO2,MAPI,ZnO,ITO,PVP]
