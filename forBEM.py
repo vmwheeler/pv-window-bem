@@ -9,7 +9,8 @@ from wpv import Layer
 # This whole thing uses microns for length
 
 degree = np.pi/180
-inc_angle = 10.*degree
+#inc_angle = 10.*degree
+inc_angle = 0.*degree
         
 num_lams = 500
 lams = np.linspace(0.3,2.5,num=num_lams)
@@ -26,12 +27,12 @@ PVP = Layer(1500,'Konig','i',onecol=True)
 #MAPI.plotnk(lams)
 #Glass.plotnk(lams)
 
+
 layers = [Glass,ITO,TiO2,MAPI,ZnO,AZO,PVP,Glass]
 #layers = [MAPI]
 
-Ttests = []
-
 '''
+Ttests = []
 for lam in lams:
     Ttests.append(np.exp(-4*np.pi*MAPI.k(lam)/lam*MAPI.d))
 
@@ -39,6 +40,17 @@ plt.figure()
 plt.plot(lams,Ttests)
 plt.show()
 '''
+
+#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
+#layers = [Glass,ITO,ITO,MAPI]
+#layers = [ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
+#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO]
+layers = [MAPI]
+#layers = [ITO,ITO,ITO,ITO]
+#layers = [Glass,Glass,Glass,Glass]
+#layers = [ITO,ITO,TiO2,MAPI,ZnO,ITO,PVP]
+#layers = [Glass]
+
 
 thicks = [tmm.inf]
 iorcs = ['i']
@@ -74,6 +86,7 @@ for lam in lams:
     
     EQE_spol = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice]
     EQE_ppol = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice]
+    
     EQEs.append( (EQE_spol + EQE_ppol) / 2. )
     
     Rfs.append( (front_spol['R']+front_ppol['R']) / 2.)
