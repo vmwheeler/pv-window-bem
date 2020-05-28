@@ -105,6 +105,9 @@ EQEs = np.array(EQEs)
 X = np.transpose([lams,EQEs])
 np.savetxt('./Output/EQE.txt',X,delimiter=',',header="wavelength [micron], EQE [1]")
 
+Y = np.transpose([lams,Ts,Rfs,Rbs])
+np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [1], R_f [1], R_b [1]")
+
 plt.figure()
 plt.plot(lams,Rfs,color='magenta',marker=None,label="$R_f$")
 plt.plot(lams,Ts,color='green',marker=None,label="$T$")
