@@ -15,20 +15,35 @@ inc_angle = 0.*degree
 num_lams = 500
 lams = np.linspace(0.3,2.5,num=num_lams)
 
-Glass = Layer(4000,'Rubin-clear_dumb','i',onecol=True)
-TiO2 = Layer(0.05,'Siefke','c',onecol=True)
-AZO = Layer(0.2,'Treharne','c',onecol=True)
-MAPI = Layer(0.5,'Phillips','c')
-ITO = Layer(0.2,'Moerland','c',onecol=True)
-ZnO = Layer(0.05,'Stelling','c',onecol=True)
-PVP = Layer(1500,'Konig','i',onecol=True)
+Glass = Layer(4000,'nkLowFeGlass','i')
+TiO2 = Layer(0.05,'nkTiO2','c')
+FTO = Layer(0.3,'nkFTO','c')
+MAPI = Layer(0.5,'nkMAPI','c')
+ITO = Layer(0.4,'nkITO','c')
+SnO2 = Layer(0.5,'nkSnO2','c')
+NiO = Layer(0.05,'nkNiO','c')
+Ag = Layer(0.01,'nkAg','c')
+TiO2lowE = Layer(0.02,'nkTiO2','c')
+Bleach = Layer(0.5,'nkTiO2','c')
+EVA = Layer(1500,'nkEVA','i')
+
+#Glass = Layer(4000,'Rubin-clear_dumb','i',onecol=True)
+#TiO2 = Layer(0.05,'Siefke','c',onecol=True)
+#AZO = Layer(0.2,'Treharne','c',onecol=True)
+#MAPI = Layer(0.5,'Phillips','c')
+#ITO = Layer(0.2,'Moerland','c',onecol=True)
+#ZnO = Layer(0.05,'Stelling','c',onecol=True)
+#PVP = Layer(1500,'Konig','i',onecol=True)
 
 
 #MAPI.plotnk(lams)
 #Glass.plotnk(lams)
 
 
-layers = [Glass,ITO,TiO2,MAPI,ZnO,AZO,PVP,Glass]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
+layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
 #layers = [MAPI]
 
 '''
@@ -41,7 +56,7 @@ plt.plot(lams,Ttests)
 plt.show()
 '''
 
-layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
+#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
 #layers = [Glass,ITO,ITO,MAPI]
 #layers = [ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
 #layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO]
