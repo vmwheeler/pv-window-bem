@@ -95,3 +95,25 @@ class Layer:
         plt.show()
                  
   
+class Stack:
+    """
+    I organize layers and interface with tmm
+    """
+    def __init__(self, layers,**kwargs):
+        
+        self.layers = layers
+
+        
+        '''
+        thicks = [tmm.inf]
+        iorcs = ['i']
+        for layer in layers:
+            thicks.append(layer.d)
+            iorcs.append(layer.i_or_c)
+        thicks.append(tmm.inf)
+        iorcs.append('i')
+        
+        thicks_bw = thicks[::-1]
+        iorcs_bw = iorcs[::-1]
+        '''        
+    
