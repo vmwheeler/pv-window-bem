@@ -22,9 +22,9 @@ MAPI = Layer(0.5,'nkMAPI','c')
 ITO = Layer(0.4,'nkITO','c')
 SnO2 = Layer(0.5,'nkSnO2','c')
 NiO = Layer(0.05,'nkNiO','c')
-Ag = Layer(0.01,'nkAg','c')
-TiO2lowE = Layer(0.02,'nkTiO2','c')
-Bleach = Layer(0.5,'nkTiO2','c')
+Ag = Layer(0.008,'nkAg','c')
+TiO2lowE = Layer(0.035,'nkTiO2','c')
+Bleach = Layer(0.5,'nkBleach','c')
 EVA = Layer(1500,'nkEVA','i')
 
 #Glass = Layer(4000,'Rubin-clear_dumb','i',onecol=True)
@@ -40,11 +40,14 @@ EVA = Layer(1500,'nkEVA','i')
 #Glass.plotnk(lams)
 
 
-#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
 
-layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
 
 #layers = [MAPI]
+
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,TiO2lowE,Ag,TiO2lowE,Glass]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Glass]
 
 '''
 Ttests = []
