@@ -2,6 +2,9 @@ import csv
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import tmm
+import vegas
 
 class Layer:
     """ 
@@ -61,9 +64,6 @@ class Layer:
         self.n = interp1d(nlams,ns,fill_value="extrapolate")
         self.k = interp1d(klams,ks,fill_value="extrapolate")
         
-        
-    
-        
 
         
     def get_sensible_data(self):
@@ -95,3 +95,55 @@ class Layer:
         plt.show()
                  
   
+class Stack:
+    """
+    I organize layers, interface with tmm, 
+    and calculate interesting things like color, VLT, etc.
+    """
+    def __init__(self, layers,**kwargs):
+        
+        self.layers = layers
+
+        #import data from NIST solar spectrum
+        alldata = pd.read_excel('./Data/ASTMG173.xls',header=1)
+
+        Intensities = np.array(alldata['Direct+circumsolar W*m-2*nm-1'])
+        wavelengths = np.array(alldata['Wvlgth nm'].values)
+        
+        self.Is = interp1d(wavelengths/1000.,Intensities*1000)
+
+            
+    
+    def get_solar_weighted_absorption(self,lamrange,inc_angle):
+                
+        
+        integ = vegas.Integrator([lamrange])
+        
+        Asol = integ(lambda lam: self.Is(lam)*self.get_A(lam,inc_angle), nitn=10, neval=100)[0]
+        Asol /= integ(self.Is, nitn=10, neval=100)[0]
+        
+        #print(type(Asol.mean))
+        
+        return Asol.mean
+    
+    def get_A(self,lam,inc_angle):
+        
+        thicks = [tmm.inf]
+        iorcs = ['i']
+        nks = [1]
+        for layer in self.layers:
+            nks.append(layer.nk(lam))
+            thicks.append(layer.d)
+            iorcs.append(layer.i_or_c)
+        thicks.append(tmm.inf)
+        iorcs.append('i')
+        nks.append(1)
+        
+        front_spol = tmm.inc_tmm('s',nks,thicks,iorcs,inc_angle,lam)
+        front_ppol = tmm.inc_tmm('p',nks,thicks,iorcs,inc_angle,lam)
+        
+        R = (front_spol['R']+front_ppol['R']) / 2.
+        T = (front_spol['T']+front_ppol['T']) / 2. 
+        
+        return 1-R-T
+        
