@@ -15,36 +15,33 @@ inc_angle = 0.*degree
 num_lams = 500
 lams = np.linspace(0.3,2.5,num=num_lams)
 
-Glass = Layer(4000,'nkLowFeGlass','i')
-TiO2 = Layer(0.05,'nkTiO2','c')
-FTO = Layer(0.3,'nkFTO','c')
-MAPI = Layer(0.5,'nkMAPI','c')
-ITO = Layer(0.4,'nkITO','c')
-SnO2 = Layer(0.5,'nkSnO2','c')
-NiO = Layer(0.05,'nkNiO','c')
-Ag = Layer(0.01,'nkAg','c')
-TiO2lowE = Layer(0.02,'nkTiO2','c')
-Bleach = Layer(0.5,'nkTiO2','c')
-EVA = Layer(1500,'nkEVA','i')
-
-#Glass = Layer(4000,'Rubin-clear_dumb','i',onecol=True)
-#TiO2 = Layer(0.05,'Siefke','c',onecol=True)
-#AZO = Layer(0.2,'Treharne','c',onecol=True)
-#MAPI = Layer(0.5,'Phillips','c')
-#ITO = Layer(0.2,'Moerland','c',onecol=True)
-#ZnO = Layer(0.05,'Stelling','c',onecol=True)
-#PVP = Layer(1500,'Konig','i',onecol=True)
-
+Glass = Layer(6000,'nkLowFeGlass','i')
+TiO2 = Layer(0.050,'nkTiO2','c')
+FTO = Layer(0.250,'nkFTO','c')
+MAPI = Layer(0.600,'nkMAPI','c')
+ITO = Layer(0.250,'nkITO','c')
+ITOlowE = Layer(0.065,'nkITO','c')
+SnO2 = Layer(0.05,'nkSnO2','c')
+SnO2lowE = Layer(0.010,'nkSnO2','c')
+SiO2 = Layer(0.024,'nkSiO2','c')
+NiO = Layer(0.050,'nkNiO','c')
+Ag = Layer(0.008,'nkAg','c')
+TiO2lowE = Layer(0.03,'nkTiO2','c')
+Bleach = Layer(0.600,'nkBleach','c')
+EVA = Layer(2500,'nkEVA','i')
 
 #MAPI.plotnk(lams)
 #Glass.plotnk(lams)
 
+#Low-E on surface 4
 
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
-layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#Low-E on surface 2
 
-#layers = [MAPI]
+layers = [Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,EVA,Glass,ITO,NiO,MAPI,TiO2,FTO,Glass]
+#layers = [Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,EVA,Glass,ITO,NiO,Bleach,TiO2,FTO,Glass]          
 
 '''
 Ttests = []
@@ -55,17 +52,6 @@ plt.figure()
 plt.plot(lams,Ttests)
 plt.show()
 '''
-
-#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
-#layers = [Glass,ITO,ITO,MAPI]
-#layers = [ITO,TiO2,MAPI,ZnO,ITO,PVP,Glass]
-#layers = [Glass,ITO,TiO2,MAPI,ZnO,ITO]
-#layers = [MAPI]
-#layers = [ITO,ITO,ITO,ITO]
-#layers = [Glass,Glass,Glass,Glass]
-#layers = [ITO,ITO,TiO2,MAPI,ZnO,ITO,PVP]
-#layers = [Glass]
-
 
 thicks = [tmm.inf]
 iorcs = ['i']
@@ -83,7 +69,8 @@ Rfs = []
 Rbs = []
 EQEs = []
 
-layerchoice = 4
+#layerchoice = 4
+layerchoice = 11
 
 for lam in lams:
 
@@ -126,7 +113,7 @@ np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [
 plt.figure()
 plt.plot(lams,Rfs,color='magenta',marker=None,label="$R_f$")
 plt.plot(lams,Ts,color='green',marker=None,label="$T$")
-plt.plot(lams,Rbs,color='purple',marker=None,label="R_b")
+plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
 plt.plot(lams,As,color='black',marker=None,label="A")
 plt.plot(lams,EQEs,color='black',linestyle='--',marker=None,label="EQE")
 plt.plot(lams,sanities,color='gold',marker=None,label="sanity check (R+A+T)")
