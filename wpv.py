@@ -119,14 +119,14 @@ class Stack:
         
         integ = vegas.Integrator([lamrange])
         
-        Asol = integ(lambda lam: self.Is(lam)*self.get_A(lam,inc_angle), nitn=10, neval=100)[0]
-        Asol /= integ(self.Is, nitn=10, neval=100)[0]
+        Asol = integ(lambda lam: self.Is(lam)*self.get_RAT(lam,inc_angle)[1], nitn=10, neval=100)[0]
+        Asol /= integ(self.Is, nitn=10, neval=1000)[0]
         
         #print(type(Asol.mean))
         
         return Asol.mean
     
-    def get_A(self,lam,inc_angle):
+    def get_RAT(self,lam,inc_angle):
         
         thicks = [tmm.inf]
         iorcs = ['i']
@@ -145,5 +145,5 @@ class Stack:
         R = (front_spol['R']+front_ppol['R']) / 2.
         T = (front_spol['T']+front_ppol['T']) / 2. 
         
-        return 1-R-T
+        return [R,1-R-T,T]
         
