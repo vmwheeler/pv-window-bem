@@ -147,3 +147,8 @@ class Stack:
         
         return [R,1-R-T,T]
         
+    def reverse(self):
+        
+        flippedstack = Stack(self.layers[::-1])
+        return flippedstack
+        
