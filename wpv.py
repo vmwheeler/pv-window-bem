@@ -112,6 +112,15 @@ class Stack:
         
         self.Is = interp1d(wavelengths/1000.,Intensities*1000)
 
+        ciedata = pd.read_csv('./Data/CIEPhotopicLuminosity.csv',names=['lams','phis'])
+
+        self.cieplf = interp1d(np.array(ciedata['lams'])/1000.,np.array(ciedata['phis']),bounds_error=False,fill_value=(0.0,0.0))
+        
+        '''
+        plt.figure()
+        plt.plot(wavelengths/1000,self.cieplf(wavelengths/1000))
+        plt.show()
+        '''
             
     
     def get_solar_weighted_absorption(self,lamrange,inc_angle):
@@ -125,6 +134,20 @@ class Stack:
         #print(type(Asol.mean))
         
         return Asol.mean
+    
+    def get_visible_light_transmission(self,lamrange,inc_angle):
+        
+        integ = vegas.Integrator([lamrange])
+        
+        numerator = integ(lambda lam: self.Is(lam)*self.cieplf(lam)*self.get_RAT(lam,inc_angle)[2], nitn=10, neval=100)[0]
+        denominator = integ(lambda lam: self.Is(lam)*self.cieplf(lam), nitn=10, neval=100)[0]
+        VLT = numerator/denominator
+        
+        #print(type(Asol.mean))
+        
+        return VLT.mean
+        
+        
     
     def get_RAT(self,lam,inc_angle):
         
