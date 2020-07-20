@@ -83,3 +83,5 @@ plt.plot(inc_angles/degree,Rs+As+Ts,label="$R+A+T$")
 plt.xlabel(r"$\theta$")
 plt.legend()
 plt.show()
+
+print(taus)

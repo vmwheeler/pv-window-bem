@@ -1,10 +1,9 @@
 import numpy as np
 import tmm
+import pandas as pd
 #import tmm_vw as tmm
 import matplotlib.pyplot as plt
 from wpv import Layer
-
-#import pandas as pd
 
 # This whole thing uses microns for length
 
@@ -18,30 +17,67 @@ lams = np.linspace(0.3,2.5,num=num_lams)
 Glass = Layer(6000,'nkLowFeGlass','i')
 TiO2 = Layer(0.050,'nkTiO2','c')
 FTO = Layer(0.250,'nkFTO','c')
-MAPI = Layer(0.600,'nkMAPI','c')
-ITO = Layer(0.250,'nkITO','c')
-ITOlowE = Layer(0.065,'nkITO','c')
+MAPI = Layer(0.050,'nkMAPI','c')
+AZO = Layer(0.200,'nkAZO','c')
+ITO = Layer(0.200,'nkITO','c')
+ITOlowE = Layer(0.075,'nkITO','c')
 SnO2 = Layer(0.05,'nkSnO2','c')
-SnO2lowE = Layer(0.010,'nkSnO2','c')
+SnO2lowE = Layer(0.030,'nkSnO2','c')
+SnO2lowEfat = Layer(0.050,'nkSnO2','c')
 SiO2 = Layer(0.024,'nkSiO2','c')
 NiO = Layer(0.050,'nkNiO','c')
-Ag = Layer(0.008,'nkAg','c')
-TiO2lowE = Layer(0.03,'nkTiO2','c')
-Bleach = Layer(0.600,'nkBleach','c')
-EVA = Layer(2500,'nkEVA','i')
+Ag = Layer(0.015,'nkAg','c')
+TiO2lowE = Layer(0.030,'nkTiO2','c')
+TiO2lowEfat = Layer(0.060,'nkTiO2','c')
+Bleach = Layer(0.500,'nkBleach','c')
+ClAlPc = Layer(0.200,'nkClAlPc','c')
+IR = Layer(0.200,'nkPTB7_ThIEICO_4F','c')
+EVA = Layer(3000,'nkEVA','i')
 
 #MAPI.plotnk(lams)
 #Glass.plotnk(lams)
 
-#Low-E on surface 4
+#Triple silver low-E
+#layers = [Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowEfat,Ag,SnO2lowE]
 
+#Double silver low-E (45,15,90,15,45)
+#layers = [Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowE]
+#Double silver low-E (30,15,60,15,30)
+#layers = [Glass,TiO2lowE,Ag,TiO2lowEfat,Ag,TiO2lowE]
+
+
+#Single silver (30,15,30)
+#layers = [Glass,TiO2lowE,Ag,TiO2lowE]
+
+#Solar cell + Low-E on surface 4
+
+layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
-#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,AZO,EVA,Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowEfat,Ag,SnO2lowE]
+#layers = [Glass,FTO,TiO2,Bleach,NiO,AZO,EVA,Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowE]
+#Single silver (30,15,30)
+#layers = [Glass,FTO,TiO2,FTO,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#Double silver low-E (30,15,60,15,30)
+#layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowEfat,Ag,TiO2lowE]
 
-#Low-E on surface 2
+#Solar cell + Low-E on surface 2
 
-layers = [Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,EVA,Glass,ITO,NiO,MAPI,TiO2,FTO,Glass]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,TiO2lowE,Ag,TiO2lowE,Glass]
+#layers = [Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,EVA,Glass,ITO,NiO,MAPI,TiO2,FTO,Glass]
 #layers = [Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,EVA,Glass,ITO,NiO,Bleach,TiO2,FTO,Glass]          
+
+#Tandem transparent solar cells
+#layers = [Glass,ClAlPc,EVA,Glass]
+#layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,Glass]
+#layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,ITO,SnO2,MAPI,NiO,FTO,Glass]
+#layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,ITO,SnO2,Bleach,NiO,FTO,Glass]
+#layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,Glass]
+
+# This is the photopic eye response to be plotted with the RAT data:
+photopic = pd.read_csv('/Users/lwheeler/Code/pv-window-bem/Data/photopic.csv') 
+#print(photopic)
+# and the AM 1.5 solar spectrum from NREL
+AM15 = pd.read_csv('/Users/lwheeler/Code/pv-window-bem/Data/AM15.csv') 
 
 '''
 Ttests = []
@@ -70,7 +106,7 @@ Rbs = []
 EQEs = []
 
 #layerchoice = 4
-layerchoice = 11
+layerchoice = 4
 
 for lam in lams:
 
@@ -116,9 +152,9 @@ plt.plot(lams,Ts,color='green',marker=None,label="$T$")
 plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
 plt.plot(lams,As,color='black',marker=None,label="A")
 plt.plot(lams,EQEs,color='black',linestyle='--',marker=None,label="EQE")
-plt.plot(lams,sanities,color='gold',marker=None,label="sanity check (R+A+T)")
+plt.plot(lams,sanities,color='gold',marker=None,label="R+A+T")
+plt.plot(photopic.wavelength,photopic.PER,color='red',marker=None,label="photopic")
 plt.xlabel('wavelength, $\mu$m')
 plt.legend()
 plt.show()
-
 
