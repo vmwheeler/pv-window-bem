@@ -3,7 +3,7 @@ import tmm
 import pandas as pd
 #import tmm_vw as tmm
 import matplotlib.pyplot as plt
-from wpv import Layer
+from wpv import Layer, Stack
 
 # This whole thing uses microns for length
 
@@ -17,7 +17,7 @@ lams = np.linspace(0.3,2.5,num=num_lams)
 Glass = Layer(6000,'nkLowFeGlass','i')
 TiO2 = Layer(0.050,'nkTiO2','c')
 FTO = Layer(0.250,'nkFTO','c')
-MAPI = Layer(0.050,'nkMAPI','c')
+MAPI = Layer(0.600,'nkMAPI','c')
 AZO = Layer(0.200,'nkAZO','c')
 ITO = Layer(0.200,'nkITO','c')
 ITOlowE = Layer(0.075,'nkITO','c')
@@ -32,6 +32,7 @@ TiO2lowEfat = Layer(0.060,'nkTiO2','c')
 Bleach = Layer(0.500,'nkBleach','c')
 ClAlPc = Layer(0.200,'nkClAlPc','c')
 IR = Layer(0.200,'nkPTB7_ThIEICO_4F','c')
+MAPBr = Layer(0.600,'nkMAPbBr3','c')
 EVA = Layer(3000,'nkEVA','i')
 
 #MAPI.plotnk(lams)
@@ -42,15 +43,16 @@ EVA = Layer(3000,'nkEVA','i')
 
 #Double silver low-E (45,15,90,15,45)
 #layers = [Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowE]
+
 #Double silver low-E (30,15,60,15,30)
 #layers = [Glass,TiO2lowE,Ag,TiO2lowEfat,Ag,TiO2lowE]
-
 
 #Single silver (30,15,30)
 #layers = [Glass,TiO2lowE,Ag,TiO2lowE]
 
 #Solar cell + Low-E on surface 4
 
+layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,TiO2,MAPI,NiO,AZO,EVA,Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowEfat,Ag,SnO2lowE]
@@ -72,12 +74,6 @@ layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,ITO,SnO2,MAPI,NiO,FTO,Glass]
 #layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,ITO,SnO2,Bleach,NiO,FTO,Glass]
 #layers = [Glass,FTO,SnO2,IR,NiO,ITO,EVA,Glass]
-
-# This is the photopic eye response to be plotted with the RAT data:
-photopic = pd.read_csv('/Users/lwheeler/Code/pv-window-bem/Data/photopic.csv') 
-#print(photopic)
-# and the AM 1.5 solar spectrum from NREL
-AM15 = pd.read_csv('/Users/lwheeler/Code/pv-window-bem/Data/AM15.csv') 
 
 '''
 Ttests = []
@@ -140,6 +136,12 @@ sanities = Ts+Rfs+As
 
 EQEs = np.array(EQEs)
 
+# Here I calculate VLT and spit it out to the screen
+VLTstack=Stack(layers)
+VLT=VLTstack.get_visible_light_transmission(lams,inc_angle)
+print("VLT =",VLT)
+#
+
 X = np.transpose([lams,EQEs])
 np.savetxt('./Output/EQE.txt',X,delimiter=',',header="wavelength [micron], EQE [1]")
 
@@ -153,8 +155,11 @@ plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
 plt.plot(lams,As,color='black',marker=None,label="A")
 plt.plot(lams,EQEs,color='black',linestyle='--',marker=None,label="EQE")
 plt.plot(lams,sanities,color='gold',marker=None,label="R+A+T")
-plt.plot(photopic.wavelength,photopic.PER,color='red',marker=None,label="photopic")
+#This is the photopic eye response
+plt.plot(lams,VLTstack.cieplf(lams),color='red',marker=None,label="photopic")
+#This is the solar spectrum
+#plt.plot(lams,VLTstack.Is(lams)/max(VLTstack.Is(lams)),color='gray',marker=None,label="AM1.5")
 plt.xlabel('wavelength, $\mu$m')
-plt.legend()
+plt.legend(loc = 'upper right')
 plt.show()
 
