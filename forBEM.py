@@ -17,7 +17,7 @@ lams = np.linspace(0.3,2.5,num=num_lams)
 Glass = Layer(6000,'nkLowFeGlass','i')
 TiO2 = Layer(0.050,'nkTiO2','c')
 FTO = Layer(0.250,'nkFTO','c')
-MAPI = Layer(0.600,'nkMAPI','c')
+MAPI = Layer(0.130,'nkMAPI','c')
 AZO = Layer(0.200,'nkAZO','c')
 ITO = Layer(0.200,'nkITO','c')
 ITOlowE = Layer(0.075,'nkITO','c')
@@ -29,10 +29,11 @@ NiO = Layer(0.050,'nkNiO','c')
 Ag = Layer(0.015,'nkAg','c')
 TiO2lowE = Layer(0.030,'nkTiO2','c')
 TiO2lowEfat = Layer(0.060,'nkTiO2','c')
-Bleach = Layer(0.500,'nkBleach','c')
-ClAlPc = Layer(0.200,'nkClAlPc','c')
-IR = Layer(0.200,'nkPTB7_ThIEICO_4F','c')
-MAPBr = Layer(0.600,'nkMAPbBr3','c')
+Bleach = Layer(0.370,'nkBleach','c')
+ClAlPc = Layer(0.300,'nkClAlPc','c')
+C60 = Layer(0.200,'nkC60','c')
+IR = Layer(0.060,'nkPTB7_ThIEICO_4F','c')
+MAPBr = Layer(0.500,'nkMAPbBr3','c')
 EVA = Layer(3000,'nkEVA','i')
 
 #MAPI.plotnk(lams)
@@ -52,8 +53,22 @@ EVA = Layer(3000,'nkEVA','i')
 
 #Solar cell + Low-E on surface 4
 
-layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
-layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+# 50% VLT with wavelength-selective absorber, IR = 60 nm
+#layers = [Glass,FTO,TiO2,IR,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+# 50% VLT with wavelength-selective absorber, C60 = 100 nm, ClAlPc = 200 nm
+layers = [Glass,FTO,TiO2,C60,ClAlPc,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
+# 50% VLT with non-wavelength-selective absorber, MAPbBr3 = 500 nm
+#layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
+# Different thicknesses of MAPI: 50% VLT = 40 nm, 25% VLT = 130 nm, 5% VLT = 370 nm, 0.5% VLT = 775 nm
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+# Here's the corresponding bleached layers for 5 and 0.5%
+#layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
+# Different thicknesses of bleach: 5% VLT = 370 nm, 0.5% VLT = 775 nm
+#layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+
 #layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE,Ag,TiO2lowE]
 #layers = [Glass,FTO,TiO2,MAPI,NiO,AZO,EVA,Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowEfat,Ag,SnO2lowE]
 #layers = [Glass,FTO,TiO2,Bleach,NiO,AZO,EVA,Glass,SnO2lowE,Ag,SnO2lowEfat,Ag,SnO2lowE]
@@ -100,9 +115,12 @@ Ts = []
 Rfs = []
 Rbs = []
 EQEs = []
+EQEs2 = []
+IREQEs = []
 
 #layerchoice = 4
 layerchoice = 4
+layerchoice2 = 5
 
 for lam in lams:
 
@@ -123,9 +141,15 @@ for lam in lams:
     
     EQEs.append( (EQE_spol + EQE_ppol) / 2. )
     
+    EQE_spol2 = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice2]
+    EQE_ppol2 = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice2]
+    
+    EQEs2.append( (EQE_spol2 + EQE_ppol2) / 2. )
+    
     Rfs.append( (front_spol['R']+front_ppol['R']) / 2.)
     Rbs.append( (back_spol['R']+back_ppol['R']) / 2.)
     Ts.append( (front_spol['T']+front_ppol['T']) / 2. )
+
 
 
 Ts = np.array(Ts)
@@ -135,6 +159,8 @@ As = 1-Ts-Rfs
 sanities = Ts+Rfs+As
 
 EQEs = np.array(EQEs)
+EQEs2 = np.array(EQEs2)
+IREQEs=EQEs+EQEs2
 
 # Here I calculate VLT and spit it out to the screen
 VLTstack=Stack(layers)
@@ -148,17 +174,23 @@ np.savetxt('./Output/EQE.txt',X,delimiter=',',header="wavelength [micron], EQE [
 Y = np.transpose([lams,Ts,Rfs,Rbs])
 np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [1], R_f [1], R_b [1]")
 
+# This is for when there are 2 layers contributing to the EQE:
+#Z = np.transpose([lams,IREQEs])
+#np.savetxt('./Output/IREQE.txt',Z,delimiter=',',header="wavelength [micron], EQE [1]")
+
 plt.figure()
 plt.plot(lams,Rfs,color='magenta',marker=None,label="$R_f$")
 plt.plot(lams,Ts,color='green',marker=None,label="$T$")
 plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
 plt.plot(lams,As,color='black',marker=None,label="A")
 plt.plot(lams,EQEs,color='black',linestyle='--',marker=None,label="EQE")
+# This is for when there are 2 layers contributing to the EQE:
+plt.plot(lams,IREQEs,color='gray',linestyle='--',marker=None,label="EQE")
 plt.plot(lams,sanities,color='gold',marker=None,label="R+A+T")
-#This is the photopic eye response
+# This is the photopic eye response
 plt.plot(lams,VLTstack.cieplf(lams),color='red',marker=None,label="photopic")
-#This is the solar spectrum
-#plt.plot(lams,VLTstack.Is(lams)/max(VLTstack.Is(lams)),color='gray',marker=None,label="AM1.5")
+# This is the solar spectrum
+ #plt.plot(lams,VLTstack.Is(lams)/max(VLTstack.Is(lams)),color='gray',marker=None,label="AM1.5")
 plt.xlabel('wavelength, $\mu$m')
 plt.legend(loc = 'upper right')
 plt.show()
