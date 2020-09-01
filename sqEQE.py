@@ -114,10 +114,12 @@ AM15interp = scipy.interpolate.interp1d(AM15[:,0], AM15[:,1])
 
 λs = np.linspace(λ_min, λ_max, num=500)
 y_values = np.array([AM15interp(x) for x in λs])
+plt.figure()
 plt.plot(λs / nm , y_values / (W/m**2/nm))
 plt.xlabel("Wavelength (nm)")
 plt.ylabel("Spectral intensity (W/m$^2$/nm)")
 plt.title("Light from the sun");
+plt.show()
 
 
 # ## Properties of incident sunlight
@@ -186,10 +188,11 @@ print(solar_photons_above_gap(1.1 * eV) * (1 * m**2) * (1 * s))
 
 Egap_list = np.linspace(0.4 * eV, 3 * eV, num=100)
 y_values = np.array([solar_photons_above_gap(E) for E in Egap_list])
+plt.figure()
 plt.plot(Egap_list / eV , y_values / (1e21 * m**-2 * s**-1))
 plt.xlabel("Bandgap energy (eV)")
 plt.ylabel("Photons above bandgap ($10^{21}$ m$^{-2} \cdot $s$^{-1}$)");
-
+plt.show()
 
 # ## Solar cell recombination and J-V curve
 # 
@@ -274,12 +277,14 @@ print(VOC(1.1 * eV) / V)
 
 Egap_list = np.linspace(0.4 * eV, 3 * eV, num=100)
 JSC_list = np.array([JSC(E) for E in Egap_list])
+plt.figure()
 plt.plot(Egap_list / eV , JSC_list / (mA / cm**2))
 plt.xlabel("Bandgap energy (eV)")
 plt.ylabel("Ideal short-circuit current (mA/cm$^2$)")
 plt.title("Ideal short-circuit current as a function of bandgap")
 plt.xlim(0.4, 3)
 plt.ylim(0,70);
+plt.show()
 
 print("After plot 1")
 # In[20]:
@@ -287,12 +292,14 @@ print("After plot 1")
 
 Egap_list = np.linspace(0.4 * eV, 3 * eV, num=20)
 VOC_list = np.array([VOC(E) for E in Egap_list])
+plt.figure()
 plt.plot(Egap_list / eV , VOC_list / V,
          np.linspace(0,3) , np.linspace(0,3), '--')
 plt.xlabel("Bandgap energy (eV)")
 plt.ylabel("Ideal open-circuit voltage (V)")
 plt.title("Ideal open-circuit voltage as a function of bandgap\n(dashed is bandgap)")
 plt.xlim(0.4,3);
+plt.show()
 
 print("After plot 2")
 
