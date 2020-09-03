@@ -11,13 +11,6 @@ assert sys.version_info >= (3,6), 'Requires Python 3.6+'
 
 # This whole thing uses microns for length
 
-degree = np.pi/180
-#inc_angle = 10.*degree
-inc_angle = 0.*degree
-        
-num_lams = 500
-lams = np.linspace(0.3,2.5,num=num_lams)
-
 Glass = Layer(6000,'nkLowFeGlass','i')
 TiO2 = Layer(0.050,'nkTiO2','c')
 FTO = Layer(0.250,'nkFTO','c')
@@ -104,99 +97,6 @@ plt.plot(lams,Ttests)
 plt.show()
 '''
 
-thicks = [tmm.inf]
-iorcs = ['i']
-for layer in layers:
-    thicks.append(layer.d)
-    iorcs.append(layer.i_or_c)
-thicks.append(tmm.inf)
-iorcs.append('i')
-
-thicks_bw = thicks[::-1]
-iorcs_bw = iorcs[::-1]
-
-Ts = []
-Rfs = []
-Rbs = []
-AbsByAbsorbers = []
-#EQEs2 = []
-#IREQEs = []
-
-#layerchoice = 4
-layerchoice = 4
-layerchoice2 = 5
-
-for lam in lams:
-
-    nks = [1]
-    for layer in layers:
-        nks.append(layer.nk(lam))
-    nks.append(1)
-
-    nks_bw = nks[::-1]
-    
-    front_spol = tmm.inc_tmm('s',nks,thicks,iorcs,inc_angle,lam)
-    front_ppol = tmm.inc_tmm('p',nks,thicks,iorcs,inc_angle,lam)
-    back_spol = tmm.inc_tmm('s',nks_bw,thicks_bw,iorcs_bw,inc_angle,lam)
-    back_ppol = tmm.inc_tmm('p',nks_bw,thicks_bw,iorcs_bw,inc_angle,lam)
-    
-    AbsByAbsorber_spol = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice]
-    AbsByAbsorber_ppol = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice]
-    
-    AbsByAbsorbers.append( (AbsByAbsorber_spol + AbsByAbsorber_ppol) / 2. )
-    
-   # EQE_spol2 = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice2]
-   # EQE_ppol2 = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice2]
-    
-   # EQEs2.append( (EQE_spol2 + EQE_ppol2) / 2. )
-    
-    Rfs.append( (front_spol['R']+front_ppol['R']) / 2.)
-    Rbs.append( (back_spol['R']+back_ppol['R']) / 2.)
-    Ts.append( (front_spol['T']+front_ppol['T']) / 2. )
-
-
-Ts = np.array(Ts)
-Rfs = np.array(Rfs)
-Rbs = np.array(Rbs)
-As = 1-Ts-Rfs
-sanities = Ts+Rfs+As
-
-AbsByAbsorbers = np.array(AbsByAbsorbers)
-#EQEs2 = np.array(EQEs2)
-#IREQEs=EQEs+EQEs2
-
-# Here I calculate VLT and spit it out to the screen
-VLTstack=Stack(layers)
-VLT=VLTstack.get_visible_light_transmission(lams,inc_angle)
-print("VLT =",VLT)
-#
-
-X = np.transpose([lams,AbsByAbsorbers])
-np.savetxt('./Output/AbsByAbsorber.txt',X,delimiter=',',header="wavelength [micron], AbsByAbsorber [1]")
-
-Y = np.transpose([lams,Ts,Rfs,Rbs])
-np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [1], R_f [1], R_b [1]")
-
-# This is for when there are 2 layers contributing to the AbsByAbsorber:
-#Z = np.transpose([lams,IREQEs])
-#np.savetxt('./Output/IREQE.txt',Z,delimiter=',',header="wavelength [micron], EQE [1]")
-
-plt.figure()
-plt.plot(lams,Rfs,color='magenta',marker=None,label="$R_f$")
-plt.plot(lams,Ts,color='green',marker=None,label="$T$")
-plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
-plt.plot(lams,As,color='black',marker=None,label="A")
-plt.plot(lams,AbsByAbsorbers,color='black',linestyle='--',marker=None,label="AbsByAbsorber")
-# This is for when there are 2 layers contributing to the EQE:
-#plt.plot(lams,IREQEs,color='gray',linestyle='--',marker=None,label="EQE")
-plt.plot(lams,sanities,color='gold',marker=None,label="R+A+T")
-# This is the photopic eye response
-plt.plot(lams,VLTstack.cieplf(lams),color='red',marker=None,label="photopic")
-# This is the solar spectrum
- #plt.plot(lams,VLTstack.Is(lams)/max(VLTstack.Is(lams)),color='gray',marker=None,label="AM1.5")
-plt.xlabel('wavelength, $\mu$m')
-plt.legend(loc = 'upper right')
-plt.show()
 
 # ******************** Here I add PCE calculation *********************#
 
@@ -243,7 +143,6 @@ plt.ylabel("Spectral intensity (W/m$^2$/nm)")
 plt.title("Light from the sun");
 plt.show()
 
-
 def SPhotonsPerTEA(Ephoton):
     λ = hPlanck * c0 / Ephoton
     return AM15interp(λ) * (1 / Ephoton) * (hPlanck * c0 / Ephoton**2)
@@ -253,33 +152,6 @@ PowerPerTEA = lambda E : E * SPhotonsPerTEA(E)
 # the messages warning about poor accuracy in integrating.
 solar_constant = scipy.integrate.quad(PowerPerTEA,E_min,E_max, full_output=1)[0]
 #print(solar_constant / (W/m**2))
-
-# I need to get a continuous function of the fraction of the photons absorbed
-# in the absorber layer. Here I tack on units and interpolate:
-    
-# X[:,0] *= 1000 * nm
-
-# AbsInterp = scipy.interpolate.interp1d(X[:,0], X[:,1])
-
-# Tack on units
-lams *= 1000 * nm
-
-# Round AbsByAbsorber to make really small numbers equal to zero
-AbsByAbsorbers = AbsByAbsorbers.round(8)
-AbsInterp = scipy.interpolate.interp1d(lams, AbsByAbsorbers)
-
-#λs = np.linspace(λ_min, λ_max, num=500)
-#Abs_values = np.array([AbsInterp(x) for x in λs])
-Abs_values = np.array([AbsInterp(x) for x in lams])
-plt.figure()
-#plt.plot(λs / nm , Abs_values )
-plt.plot(lams / nm , Abs_values )
-plt.xlabel("Wavelength (nm)")
-plt.ylabel("Absorptance")
-plt.title("Absorbed in absorber layer");
-plt.show()
-
-#AbsByAbsorbers
 
 #def AbsVsE(Ephoton):
 #    λ = hPlanck * c0 / Ephoton 
@@ -332,17 +204,6 @@ def J_mpp(eta,Absorbed):
 def Power(voltage, eta,Absorbed):
     return voltage * current_density(voltage, eta,Absorbed)
 
-
-Vs = np.linspace(0.1 * V, 2 * V, num=500)
-y_values = np.array([Power(x,0.9,AbsInterp) for x in Vs])
-plt.figure()
-plt.plot(Vs / V , y_values / (W/m**2))
-plt.xlabel("Voltage (V)")
-plt.ylabel("Power (W m-2)")
-plt.ylim(-1, 150)
-#plt.title("Light from the sun");
-plt.show()
-
 def max_power(eta,Absorbed):
     voltage = V_mpp(eta,Absorbed)
     return voltage * current_density(voltage, eta,Absorbed)
@@ -350,4 +211,172 @@ def max_power(eta,Absorbed):
 def max_efficiency(eta,Absorbed):
     return max_power(eta,Absorbed) / solar_constant
 
-print("PCE =",max_efficiency(0.9,AbsInterp))
+#Vs = np.linspace(0.1 * V, 2 * V, num=500)
+#y_values = np.array([Power(x,0.9,AbsInterp) for x in Vs])
+#plt.figure()
+#plt.plot(Vs / V , y_values / (W/m**2))
+#plt.xlabel("Voltage (V)")
+#plt.ylabel("Power (W m-2)")
+#plt.ylim(-1, 150)
+#plt.title("Light from the sun");
+#plt.show()
+
+
+# array of angles
+degree = np.pi/180
+#inc_angle = 0.*degree
+num_angles = 10
+angles = np.linspace(0,90.*degree,num=num_angles)
+   
+# array of wavelengths     
+num_lams = 500
+lams = np.linspace(0.3,2.5,num=num_lams)
+
+# declare arrays
+Ts = []
+Rfs = []
+Rbs = []
+AbsByAbsorbers = []
+PCEs = []
+#AbsByAbsorber = np.array(num_lams)
+#EQEs2 = []
+#IREQEs = []
+
+# This is the electron-hole pair extraction efficiency. I could also loop this.
+eta = 0.8
+
+# This parameter defines which part of the stack of materials is the absorber 
+# layer for PCE calculation:
+
+layerchoice = 4
+#layerchoice2 = 5
+
+thicks = [tmm.inf]
+iorcs = ['i']
+for layer in layers:
+    thicks.append(layer.d)
+    iorcs.append(layer.i_or_c)
+thicks.append(tmm.inf)
+iorcs.append('i')
+
+thicks_bw = thicks[::-1]
+iorcs_bw = iorcs[::-1]
+
+for angle in angles:
+    # Start arrays fresh
+    Ts = []
+    Rfs = []
+    Rbs = []
+    AbsByAbsorbers = []
+    PCEs = []
+    
+    for lam in lams:
+
+        nks = [1]
+        for layer in layers:
+            nks.append(layer.nk(lam))
+        nks.append(1)
+
+        nks_bw = nks[::-1]
+    
+        front_spol = tmm.inc_tmm('s',nks,thicks,iorcs,angle,lam)
+        front_ppol = tmm.inc_tmm('p',nks,thicks,iorcs,angle,lam)
+        back_spol = tmm.inc_tmm('s',nks_bw,thicks_bw,iorcs_bw,angle,lam)
+        back_ppol = tmm.inc_tmm('p',nks_bw,thicks_bw,iorcs_bw,angle,lam)
+    
+        # EQE_spol2 = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice2]
+        # EQE_ppol2 = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice2]
+    
+        # EQEs2.append( (EQE_spol2 + EQE_ppol2) / 2. )
+    
+        Rfs.append( (front_spol['R']+front_ppol['R']) / 2.)
+        Rbs.append( (back_spol['R']+back_ppol['R']) / 2.)
+        Ts.append( (front_spol['T']+front_ppol['T']) / 2. )
+           
+        AbsByAbsorber_spol = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice]
+        AbsByAbsorber_ppol = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice]
+    
+        AbsByAbsorbers.append( (AbsByAbsorber_spol + AbsByAbsorber_ppol) / 2. )
+        #np.append(AbsByAbsorbers, (AbsByAbsorber_spol + AbsByAbsorber_ppol) / 2.)
+    
+    AbsByAbsorber = np.array(AbsByAbsorbers)
+    AbsByAbsorber = AbsByAbsorber.round(8)
+    AbsInterp = scipy.interpolate.interp1d(lams *1000 * nm, AbsByAbsorber)
+        
+    PCEs.append(max_efficiency(eta,AbsInterp))
+    
+    print("angle =",angle)
+    print("PCE =",max_efficiency(eta, AbsInterp))
+    
+    # Here I calculate VLT and spit it out to the screen
+    VLTstack=Stack(layers)
+    VLT=VLTstack.get_visible_light_transmission(lams,angle)
+    print("VLT =",VLT)
+
+
+Ts = np.array(Ts)
+Rfs = np.array(Rfs)
+Rbs = np.array(Rbs)
+As = 1-Ts-Rfs
+sanities = Ts+Rfs+As
+
+AbsByAbsorbers = np.array(AbsByAbsorbers)
+#EQEs2 = np.array(EQEs2)
+#IREQEs=EQEs+EQEs2
+
+# I need to get a continuous function of the fraction of the photons absorbed
+# in the absorber layer. Here I tack on units and interpolate:
+    
+# X[:,0] *= 1000 * nm
+
+# AbsInterp = scipy.interpolate.interp1d(X[:,0], X[:,1])
+
+# Tack on units
+lams *= 1000 * nm
+
+# Round AbsByAbsorber to make really small numbers equal to zero
+AbsByAbsorbers = AbsByAbsorbers.round(8)
+AbsInterp = scipy.interpolate.interp1d(lams, AbsByAbsorbers)
+
+#λs = np.linspace(λ_min, λ_max, num=500)
+#Abs_values = np.array([AbsInterp(x) for x in λs])
+Abs_values = np.array([AbsInterp(x) for x in lams])
+plt.figure()
+#plt.plot(λs / nm , Abs_values )
+plt.plot(lams / nm , Abs_values )
+plt.xlabel("Wavelength (nm)")
+plt.ylabel("Absorptance")
+plt.title("Absorbed in absorber layer");
+plt.show()
+
+#
+
+X = np.transpose([lams,AbsByAbsorbers])
+np.savetxt('./Output/AbsByAbsorber.txt',X,delimiter=',',header="wavelength [micron], AbsByAbsorber [1]")
+
+Y = np.transpose([lams,Ts,Rfs,Rbs])
+np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [1], R_f [1], R_b [1]")
+
+# This is for when there are 2 layers contributing to the AbsByAbsorber:
+#Z = np.transpose([lams,IREQEs])
+#np.savetxt('./Output/IREQE.txt',Z,delimiter=',',header="wavelength [micron], EQE [1]")
+
+plt.figure()
+plt.plot(lams,Rfs,color='magenta',marker=None,label="$R_f$")
+plt.plot(lams,Ts,color='green',marker=None,label="$T$")
+plt.plot(lams,Rbs,color='purple',marker=None,label="$R_b$")
+plt.plot(lams,As,color='black',marker=None,label="A")
+plt.plot(lams,AbsByAbsorbers,color='black',linestyle='--',marker=None,label="AbsByAbsorber")
+# This is for when there are 2 layers contributing to the EQE:
+#plt.plot(lams,IREQEs,color='gray',linestyle='--',marker=None,label="EQE")
+plt.plot(lams,sanities,color='gold',marker=None,label="R+A+T")
+# This is the photopic eye response
+plt.plot(lams,VLTstack.cieplf(lams),color='red',marker=None,label="photopic")
+# This is the solar spectrum
+ #plt.plot(lams,VLTstack.Is(lams)/max(VLTstack.Is(lams)),color='gray',marker=None,label="AM1.5")
+plt.xlabel('wavelength, $\mu$m')
+plt.legend(loc = 'upper right')
+plt.show()
+
+
+#print("PCE =",max_efficiency(0.9,AbsInterp))
