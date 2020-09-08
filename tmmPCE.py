@@ -63,10 +63,10 @@ EVA = Layer(3000,'nkEVA','i')
 #layers = [Glass,FTO,TiO2,C60,ClAlPc,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
 # 50% VLT with non-wavelength-selective absorber, MAPbBr3 = 500 nm
-#layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
 # Different thicknesses of MAPI: 50% VLT = 40 nm, 25% VLT = 130 nm, 5% VLT = 370 nm, 0.5% VLT = 775 nm
-layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 # Here's the corresponding bleached layers for 5 and 0.5%
 #layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
@@ -334,7 +334,7 @@ def Power(voltage, eta,Absorbed):
 
 
 Vs = np.linspace(0.1 * V, 2 * V, num=500)
-y_values = np.array([Power(x,0.9,AbsInterp) for x in Vs])
+y_values = np.array([Power(x,0.6,AbsInterp) for x in Vs])
 plt.figure()
 plt.plot(Vs / V , y_values / (W/m**2))
 plt.xlabel("Voltage (V)")
@@ -350,4 +350,4 @@ def max_power(eta,Absorbed):
 def max_efficiency(eta,Absorbed):
     return max_power(eta,Absorbed) / solar_constant
 
-print("PCE =",max_efficiency(0.9,AbsInterp))
+print("PCE =",max_efficiency(0.6,AbsInterp))

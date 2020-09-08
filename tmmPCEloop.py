@@ -27,8 +27,8 @@ Ag = Layer(0.015,'nkAg','c')
 TiO2lowE = Layer(0.030,'nkTiO2','c')
 TiO2lowEfat = Layer(0.060,'nkTiO2','c')
 Bleach = Layer(0.370,'nkBleach','c')
-ClAlPc = Layer(0.300,'nkClAlPc','c')
-C60 = Layer(0.200,'nkC60','c')
+ClAlPc = Layer(0.200,'nkClAlPc','c')
+C60 = Layer(0.100,'nkC60','c')
 IR = Layer(0.060,'nkPTB7_ThIEICO_4F','c')
 MAPBr = Layer(0.500,'nkMAPbBr3','c')
 EVA = Layer(3000,'nkEVA','i')
@@ -56,12 +56,12 @@ EVA = Layer(3000,'nkEVA','i')
 #layers = [Glass,FTO,TiO2,C60,ClAlPc,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
 # 50% VLT with non-wavelength-selective absorber, MAPbBr3 = 500 nm
-#layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+layers = [Glass,FTO,TiO2,MAPBr,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
 # Different thicknesses of MAPI: 50% VLT = 40 nm, 25% VLT = 130 nm, 5% VLT = 370 nm, 0.5% VLT = 775 nm
-layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+#layers = [Glass,FTO,TiO2,MAPI,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 # Here's the corresponding bleached layers for 5 and 0.5%
-#layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
+layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
 
 # Different thicknesses of bleach: 5% VLT = 370 nm, 0.5% VLT = 775 nm
 #layers = [Glass,FTO,TiO2,Bleach,NiO,ITO,EVA,Glass,TiO2lowE,Ag,TiO2lowE]
@@ -225,22 +225,22 @@ def max_efficiency(eta,Absorbed):
 # array of angles
 degree = np.pi/180
 #inc_angle = 0.*degree
-num_angles = 10
-angles = np.linspace(0,90.*degree,num=num_angles)
+num_angles = 50
+angles = np.linspace(0,89.999*degree,num=num_angles)
    
 # array of wavelengths     
 num_lams = 500
 lams = np.linspace(0.3,2.5,num=num_lams)
 
 # declare arrays
-Ts = []
-Rfs = []
-Rbs = []
-AbsByAbsorbers = []
-PCEs = []
+#Ts = []
+#Rfs = []
+#Rbs = []
+#AbsByAbsorbers = []
 #AbsByAbsorber = np.array(num_lams)
 #EQEs2 = []
 #IREQEs = []
+PCEs = []
 
 # This is the electron-hole pair extraction efficiency. I could also loop this.
 eta = 0.8
@@ -249,7 +249,8 @@ eta = 0.8
 # layer for PCE calculation:
 
 layerchoice = 4
-#layerchoice2 = 5
+# This is the second layer for a selective absorber stack
+layerchoice2 = 5
 
 thicks = [tmm.inf]
 iorcs = ['i']
@@ -268,7 +269,7 @@ for angle in angles:
     Rfs = []
     Rbs = []
     AbsByAbsorbers = []
-    PCEs = []
+    AbsByAbsorbers2 = []
     
     for lam in lams:
 
@@ -297,9 +298,21 @@ for angle in angles:
         AbsByAbsorber_ppol = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice]
     
         AbsByAbsorbers.append( (AbsByAbsorber_spol + AbsByAbsorber_ppol) / 2. )
+        
+        # I'll add the absorption of a second layer for when I use the two layers
+        # for selective absorption
+        AbsByAbsorber2_spol = tmm.inc_absorp_in_each_layer(front_spol)[layerchoice2]
+        AbsByAbsorber2_ppol = tmm.inc_absorp_in_each_layer(front_ppol)[layerchoice2]
+    
+        AbsByAbsorbers2.append( (AbsByAbsorber2_spol + AbsByAbsorber2_ppol) / 2. )
         #np.append(AbsByAbsorbers, (AbsByAbsorber_spol + AbsByAbsorber_ppol) / 2.)
     
+    # Comment in/out AbsByAbsrober2 on the next few lines to include a second
+    # abosrber layer in the calculation
     AbsByAbsorber = np.array(AbsByAbsorbers)
+    #AbsByAbsorber2 = np.array(AbsByAbsorbers2)
+    #AbsByAbsorber = AbsByAbsorber + AbsByAbsorber2
+
     AbsByAbsorber = AbsByAbsorber.round(8)
     AbsInterp = scipy.interpolate.interp1d(lams *1000 * nm, AbsByAbsorber)
         
@@ -313,10 +326,21 @@ for angle in angles:
     VLT=VLTstack.get_visible_light_transmission(lams,angle)
     print("VLT =",VLT)
 
+Vs = np.linspace(0.1 * V, 2 * V, num=500)
+y_values = np.array([Power(x,eta,AbsInterp) for x in Vs])
+plt.figure()
+plt.plot(Vs / V , y_values / (W/m**2))
+plt.xlabel("Voltage (V)")
+plt.ylabel("Power (W m-2)")
+plt.ylim(-1, 150)
+#plt.title("Light from the sun");
+plt.show()
+
 
 Ts = np.array(Ts)
 Rfs = np.array(Rfs)
 Rbs = np.array(Rbs)
+PCEs = np.array(PCEs)
 As = 1-Ts-Rfs
 sanities = Ts+Rfs+As
 
@@ -356,6 +380,9 @@ np.savetxt('./Output/AbsByAbsorber.txt',X,delimiter=',',header="wavelength [micr
 
 Y = np.transpose([lams,Ts,Rfs,Rbs])
 np.savetxt('./Output/TRfRb.txt',Y,delimiter=',',header="wavelength [micron], T [1], R_f [1], R_b [1]")
+
+PCEangleData = np.transpose([angles/degree,PCEs])
+np.savetxt('./Output/PCE_v_angle.txt',PCEangleData,delimiter=',',header="Angle [degrees], PCE")
 
 # This is for when there are 2 layers contributing to the AbsByAbsorber:
 #Z = np.transpose([lams,IREQEs])
