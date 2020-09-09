@@ -105,7 +105,8 @@ plt.show()
 Tcell = 300 * K
 
 # worksheet = pandas.read_excel('https://www.nrel.gov/grid/solar-resource/assets/data/astmg173.xls')
-worksheet = pandas.read_excel('/Users/lwheeler/Code/pv-window-bem/Data/astmg173.xls')
+#worksheet = pandas.read_excel('/Users/lwheeler/Code/pv-window-bem/Data/astmg173.xls')
+worksheet = pandas.read_excel('./Data/ASTMG173.xls')
 downloaded_array = np.array(worksheet)
 
 # Wavelength is in column 0, AM1.5G data is column 2
